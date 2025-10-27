@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>花海互动 🎉🌸</title>
+<style>
+  body {
+    font-family: "Arial", sans-serif;
+    text-align: center;
+    background: #fffbe6;
+    overflow: hidden;
+    height: 100vh;
+    margin: 0;
+    position: relative;
+  }
+  button {
+    font-size: 20px;
+    padding: 10px 20px;
+    cursor: pointer;
+    border: none;
+    background-color: #ff7eb9;
+    color: white;
+    border-radius: 8px;
+    margin-top: 20px;
+    position: relative;
+    z-index: 10;
+  }
+  button:hover { transform: scale(1.1); }
+
+  .flower {
+    font-size: 50px;
+    position: absolute;
+    cursor: pointer;
+    animation: fall 5s linear forwards;
+    user-select: none;
+  }
+  @keyframes fall {
+    0% { transform: translateY(-50px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+  }
+
+  .popup {
+    position: absolute;
+    font-size: 20px;
+    animation: pop 1s ease forwards;
+    pointer-events: none;
+    font-weight: bold;
+  }
+  @keyframes pop {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1); opacity: 0; }
+  }
+
+  .spark {
+    position: absolute;
+    font-size: 15px;
+    animation: sparkMove 1s forwards;
+    pointer-events: none;
+  }
+  @keyframes sparkMove {
+    0% { transform: translate(0,0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--x), var(--y)) scale(0.5); opacity: 0; }
+  }
+
+  .sender {
+    font-size: 16px;
+    color: #ff4d6d;
+    font-weight: bold;
+    position: absolute;
+    pointer-events: none;
+    animation: fadeUp 2s forwards;
+  }
+  @keyframes fadeUp {
+    0% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-30px); }
+  }
+
+  /* 固定赠送人文字 */
+  .fixed-sender {
+    position: fixed;
+    bottom: 10px;
+    right: 20px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #ff4d6d;
+    background: rgba(255, 255, 255, 0.6);
+    padding: 5px 10px;
+    border-radius: 8px;
+    z-index: 999;
+  }
+
+  /* 漂浮泡泡 */
+  .bubble {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(135, 206, 250, 0.4);
+    pointer-events: none;
+    animation: floatBubble linear forwards;
+  }
+  @keyframes floatBubble {
+    0% { transform: translateY(0) scale(1); opacity: 0.6; }
+    100% { transform: translateY(-100vh) scale(0.5); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<h1>点我送花海 🌸✨</h1>
+<button onclick="showFlower()">点我！</button>
+<div id="flowerContainer"></div>
+
+<!-- 固定赠送人 -->
+<div class="fixed-sender">赠送人：年年</div>
+
+<audio id="flowerSound" src="https://www.soundjay.com/button/beep-07.wav"></audio>
+
+<script>
+const flowers = ["🌸","🌹","🌺","🌼","🌷"];
+const messages = [
+  "愿你的每一天都像花一样灿烂！",
+  "送你一朵花，带来好运和微笑！",
+  "花开如你，温暖而美丽！",
+  "希望你今天心情像花儿一样明媚！",
+  "小花一朵，送你快乐一整天！"
+];
+const colors = ["#ff4d6d","#ffb347","#4dd2ff","#b19cd9","#70db70"];
+const receiverName = "思捷"; // 签收人
+
+function showFlower() {
+  const flowerContainer = document.getElementById('flowerContainer');
+  const sound = document.getElementById('flowerSound');
+
+  // 播放音效
+  sound.currentTime = 0;
+  sound.play();
+
+  // 随机花朵
+  const flowerEmoji = flowers[Math.floor(Math.random() * flowers.length)];
+  const span = document.createElement('span');
+  span.className = 'flower';
+  span.textContent = flowerEmoji;
+  span.style.left = Math.random() * (window.innerWidth - 50) + 'px';
+  flowerContainer.appendChild(span);
+
+  // 点击花朵显示弹出祝福、星星特效和签收人名字
+  span.onclick = function(e) {
+    showPopup(e.pageX, e.pageY);
+    showSparks(e.pageX, e.pageY);
+    showReceiver(e.pageX, e.pageY);
+  }
+
+  // 自动删除飘落完成的花
+  setTimeout(() => { if(flowerContainer.contains(span)) flowerContainer.removeChild(span); }, 5000);
+
+  // 随机生成泡泡
+  createBubble();
+}
+
+function showPopup(x, y) {
+  const popup = document.createElement('div');
+  popup.className = 'popup';
+  popup.textContent = messages[Math.floor(Math.random() * messages.length)];
+  popup.style.left = x + 'px';
+  popup.style.top = y + 'px';
+  popup.style.color = colors[Math.floor(Math.random() * colors.length)];
+  document.body.appendChild(popup);
+  setTimeout(() => document.body.removeChild(popup), 1000);
+}
+
+function showSparks(x, y) {
+  for(let i=0; i<5; i++){
+    const spark = document.createElement('div');
+    spark.className = 'spark';
+    spark.textContent = "✨";
+    spark.style.left = x + 'px';
+    spark.style.top = y + 'px';
+    const dx = (Math.random()*100-50)+'px';
+    const dy = (Math.random()*-100)+'px';
+    spark.style.setProperty('--x', dx);
+    spark.style.setProperty('--y', dy);
+    document.body.appendChild(spark);
+    setTimeout(() => document.body.removeChild(spark), 1000);
+  }
+}
+
+function showReceiver(x, y) {
+  const receiver = document.createElement('div');
+  receiver.className = 'sender';
+  receiver.textContent = `签收人：${receiverName}`;
+  receiver.style.left = x + 'px';
+  receiver.style.top = y + 'px';
+  document.body.appendChild(receiver);
+  setTimeout(() => document.body.removeChild(receiver), 2000);
+}
+
+function createBubble() {
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  const size = Math.random() * 20 + 10 + 'px';
+  bubble.style.width = size;
+  bubble.style.height = size;
+  bubble.style.left = Math.random() * window.innerWidth + 'px';
+  bubble.style.bottom = '0px';
+  const duration = Math.random() * 5 + 5 + 's';
+  bubble.style.animationDuration = duration;
+  document.body.appendChild(bubble);
+  setTimeout(() => document.body.removeChild(bubble), parseFloat(duration)*1000);
+}
+</script>
+
+</body>
+</html>
